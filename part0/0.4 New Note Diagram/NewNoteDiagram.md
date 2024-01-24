@@ -31,3 +31,4 @@ sequenceDiagram
     deactivate server 
     
     Note left of server: The server sends the array of notes including the newly added note for the browser to render 
+```    
