@@ -13,13 +13,13 @@ const App = () => {
 
   useEffect(() => {
     axios.get("http://localhost:3001/persons").then((response) => {
-      console.log(response.data);
+      // console.log(response.data);
       setPersons(response.data);
       setFilteredPersons(response.data);
     });
   }, []);
 
-  console.log(persons);
+  // console.log(persons);
 
   const addPerson = (event) => {
     event.preventDefault();
@@ -28,7 +28,12 @@ const App = () => {
     if (namesList.includes(personObject.name)) {
       alert(`${personObject.name} is already added to the phonebook`);
     } else {
-      setPersons(persons.concat(personObject));
+      axios
+        .post("http://localhost:3001/persons", personObject)
+        .then((response) => {
+          // console.log(response.data);
+          setPersons(persons.concat(response.data));
+        });
     }
     setNewName("");
     setNewNumber("");
@@ -69,7 +74,7 @@ const App = () => {
         onNumberChange={handleNumberChange}
       />
       <h3>Numbers</h3>
-      <Persons persons={filteredPersons} />
+      <Persons persons={filter ? filteredPersons : persons} />
     </div>
   );
 };
