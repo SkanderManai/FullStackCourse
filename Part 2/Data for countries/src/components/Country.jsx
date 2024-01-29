@@ -1,5 +1,10 @@
 /* eslint-disable react/prop-types */
-const Country = ({ country }) => {
+import Weather from "./Weather";
+
+const Country = ({ country, weather }) => {
+  if (!weather) {
+    return <div>Loading</div>;
+  }
   return (
     <div>
       <h1>{country.name.common} </h1>
@@ -14,6 +19,7 @@ const Country = ({ country }) => {
       <div>
         <img src={country.flags.png} alt={country.flags.alt} />
       </div>
+      <Weather weather={weather} capital={country.capital[0]} />
     </div>
   );
 };
