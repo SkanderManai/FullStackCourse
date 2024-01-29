@@ -3,6 +3,7 @@ import personService from "./services/persons";
 import Filter from "./Components/Filter";
 import PersonForm from "./Components/PersonForm";
 import Persons from "./Components/Persons";
+import Notification from "./Components/Notification";
 
 const App = () => {
   const [persons, setPersons] = useState([]);
@@ -10,6 +11,7 @@ const App = () => {
   const [newNumber, setNewNumber] = useState("");
   const [filter, setNewFilter] = useState("");
   const [filteredPersons, setFilteredPersons] = useState([]);
+  const [message, setMessage] = useState(null);
 
   useEffect(() => {
     personService.getAll().then((intialPersons) => {
@@ -26,6 +28,13 @@ const App = () => {
           person.id !== changedPerson.id ? person : updatedPerson
         )
       );
+      setMessage({
+        text: `Updated ${updatedPerson.name}'s number`,
+        error: false,
+      });
+      setTimeout(() => {
+        setMessage(null);
+      }, 5000);
     });
   };
 
@@ -44,6 +53,13 @@ const App = () => {
     } else {
       personService.create(personObject).then((newPerson) => {
         setPersons(persons.concat(newPerson));
+        setMessage({
+          text: `Added ${newPerson.name}`,
+          error: false,
+        });
+        setTimeout(() => {
+          setMessage(null);
+        }, 5000);
       });
     }
     setNewName("");
@@ -74,15 +90,29 @@ const App = () => {
 
   const handleDelete = (person) => {
     if (window.confirm(`Delete ${person.name}?`)) {
-      personService.deleteEntry(person.id).then((deletedPerson) => {
-        setPersons(persons.filter((p) => p.id !== deletedPerson.id));
-      });
+      personService
+        .deleteEntry(person.id)
+        .then((deletedPerson) => {
+          setPersons(persons.filter((p) => p.id !== deletedPerson.id));
+        })
+        // eslint-disable-next-line no-unused-vars
+        .catch((error) => {
+          setMessage({
+            text: `Information of ${person.name} has already been removed from server `,
+            error: 1,
+          });
+          setTimeout(() => {
+            setMessage(null);
+          }, 5000);
+          setPersons(persons.filter((p) => p.id !== person.id));
+        });
     }
   };
 
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={message} />
       <Filter filter={filter} onChange={handleFilterChange} />
       <h3>Add a new person</h3>
       <PersonForm
