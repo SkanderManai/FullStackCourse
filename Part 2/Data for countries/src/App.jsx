@@ -1,6 +1,8 @@
 /* eslint-disable react/prop-types */
 import { useEffect, useState } from "react";
 import axios from "axios";
+import Country from "./components/Country";
+import CountriesList from "./components/CountriesList";
 
 const baseUrl = "https://studies.cs.helsinki.fi/restcountries/api";
 
@@ -8,6 +10,7 @@ function App() {
   const [countries, setCountries] = useState(null);
   const [filteredCountries, setFilteredCountries] = useState(null);
   const [filter, setFilter] = useState("");
+  const [selectedCountry, setSelectedCountry] = useState(null);
 
   useEffect(() => {
     axios.get(`${baseUrl}/all`).then((response) => setCountries(response.data));
@@ -21,10 +24,15 @@ function App() {
 
   const handleFilterChange = (event) => {
     setFilter(event.target.value);
+    setSelectedCountry(null);
     const temp = event.target.value
       ? filterCountries(event.target.value, countries)
       : [];
     setFilteredCountries(temp);
+  };
+
+  const handleShowButton = (country) => {
+    setSelectedCountry(country);
   };
 
   const DisplayCountries = () => {
@@ -36,11 +44,10 @@ function App() {
     }
     if (filteredCountries.length > 1 && filteredCountries.length < 10) {
       return (
-        <div>
-          {filteredCountries.map((country) => {
-            return <div key={country.name.common}>{country.name.common}</div>;
-          })}
-        </div>
+        <CountriesList
+          countries={filteredCountries}
+          onClick={handleShowButton}
+        />
       );
     }
     if (filteredCountries.length === 1) {
@@ -48,24 +55,11 @@ function App() {
     }
   };
 
-  const Country = ({ country }) => {
-    // debugger;
-    return (
-      <div>
-        <h1>{country.name.common} </h1>
-        <div>capital {country.capital[0]}</div>
-        <div>area {country.area} </div>
-        <h2>Languages </h2>
-        <ul>
-          {Object.keys(country.languages).map((key) => {
-            return <li key={key}>{country.languages[key]}</li>;
-          })}
-        </ul>
-        <div>
-          <img src={country.flags.png} alt={country.flags.alt} />
-        </div>
-      </div>
-    );
+  const Display = () => {
+    if (!selectedCountry) {
+      return <DisplayCountries />;
+    }
+    return <Country country={selectedCountry} />;
   };
 
   return (
@@ -74,7 +68,7 @@ function App() {
         search for country{" "}
         <input value={filter} onChange={handleFilterChange} />
       </div>
-      <DisplayCountries />
+      <Display />
     </div>
   );
 }
